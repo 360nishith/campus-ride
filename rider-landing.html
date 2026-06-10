@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rider Dashboard | Campus Ride</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="dashboard-page">
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Campus Ride home">
+        <span class="brand-mark">CR</span>
+        <span>CAMPUS RIDE</span>
+      </a>
+
+      <nav class="nav-actions" aria-label="Rider actions">
+        <span class="user-email" data-user-email></span>
+        <button class="nav-button" id="logout-btn">Logout</button>
+      </nav>
+    </header>
+
+    <main class="rider-main">
+      <!-- Revenue Section -->
+      <section class="revenue-section" aria-labelledby="revenue-title">
+        <div class="revenue-card">
+          <p class="section-label">Earnings</p>
+          <h2 id="revenue-title">Total Revenue</h2>
+          <div class="revenue-amount" data-total-revenue>₹0</div>
+        </div>
+        <button class="post-ride-btn" id="post-ride-btn">+ Post a Ride</button>
+      </section>
+
+      <!-- Active Rides Section -->
+      <section class="active-rides-section" aria-labelledby="active-rides-title">
+        <div class="results-toolbar">
+          <div>
+            <p class="section-label">My Rides</p>
+            <h2 id="active-rides-title">Posted Rides</h2>
+          </div>
+          <span class="ride-count" data-active-ride-count>0 rides</span>
+        </div>
+
+        <div class="ride-list" data-active-ride-list>
+          <p class="empty-state">No rides posted yet. Click "Post a Ride" to get started.</p>
+        </div>
+      </section>
+
+      <!-- Ride Applications Section -->
+      <section class="applications-section" aria-labelledby="applications-title">
+        <div class="results-toolbar">
+          <div>
+            <p class="section-label">Passenger Applications</p>
+            <h2 id="applications-title">Ride Requests</h2>
+          </div>
+          <span class="application-count" data-application-count>0 requests</span>
+        </div>
+
+        <div class="applications-list" data-applications-list>
+          <p class="empty-state">No passenger applications yet.</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Edit Ride Modal -->
+    <div class="modal" id="edit-ride-modal" aria-hidden="true">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Edit Ride</h3>
+          <button class="modal-close-btn" aria-label="Close modal">&times;</button>
+        </div>
+        <form id="edit-ride-form" class="ride-form" novalidate>
+          <input type="hidden" name="rideId" />
+
+          <label for="edit-start-location">Start Location</label>
+          <input
+            id="edit-start-location"
+            name="startLocation"
+            type="text"
+            required
+            placeholder="e.g., NMAMIT main gate"
+          />
+
+          <label for="edit-destination-location">Destination Location</label>
+          <input
+            id="edit-destination-location"
+            name="destinationLocation"
+            type="text"
+            required
+            placeholder="e.g., Karkala bus stand"
+          />
+
+          <label for="edit-via">Via Location (Optional)</label>
+          <input
+            id="edit-via"
+            name="via"
+            type="text"
+            placeholder="e.g., Nitte, Belman"
+          />
+
+          <label for="edit-seats">Number of Seats Available</label>
+          <input
+            id="edit-seats"
+            name="seatsAvailable"
+            type="number"
+            min="1"
+            max="7"
+            required
+          />
+
+          <label for="edit-cost-per-km">Cost per Kilometer (₹)</label>
+          <input
+            id="edit-cost-per-km"
+            name="costPerKm"
+            type="number"
+            min="0"
+            step="0.5"
+            required
+          />
+
+          <div class="modal-actions">
+            <button type="submit" class="btn-primary">Save Changes</button>
+            <button type="button" class="btn-secondary" id="modal-cancel-btn">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="rider-landing.js"></script>
+  </body>
+</html>

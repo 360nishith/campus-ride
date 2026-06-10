@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Post a Ride | Campus Ride</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="auth-page">
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Campus Ride home">
+        <span class="brand-mark">CR</span>
+        <span>CAMPUS RIDE</span>
+      </a>
+
+      <nav class="nav-actions" aria-label="Account actions">
+        <span class="user-email" data-user-email></span>
+        <button class="nav-button" id="logout-btn">Logout</button>
+      </nav>
+    </header>
+
+    <main class="auth-main">
+      <form class="account-card post-ride-form" id="post-ride-form" novalidate>
+        <span class="role-label">Create New Ride</span>
+        <h1>Post a Ride</h1>
+        <p class="form-description">Fill in the details below to post your ride</p>
+
+        <label for="start-location">Start Location *</label>
+        <input
+          id="start-location"
+          name="startLocation"
+          type="text"
+          autocomplete="street-address"
+          placeholder="e.g., NMAMIT main gate"
+          required
+        />
+        <p class="form-error" data-start-error aria-live="polite"></p>
+
+        <label for="destination-location">Destination Location *</label>
+        <input
+          id="destination-location"
+          name="destinationLocation"
+          type="text"
+          autocomplete="street-address"
+          placeholder="e.g., Karkala bus stand"
+          required
+        />
+        <p class="form-error" data-destination-error aria-live="polite"></p>
+
+        <label for="via-location">Via Location (Optional)</label>
+        <input
+          id="via-location"
+          name="via"
+          type="text"
+          placeholder="e.g., Nitte, Belman (multiple locations separated by comma)"
+        />
+
+        <label for="seats">Number of Seats Available *</label>
+        <input
+          id="seats"
+          name="seatsAvailable"
+          type="number"
+          min="1"
+          max="7"
+          placeholder="1-7"
+          required
+        />
+        <p class="form-error" data-seats-error aria-live="polite"></p>
+
+        <label for="cost-per-km">Cost per Kilometer (₹) *</label>
+        <input
+          id="cost-per-km"
+          name="costPerKm"
+          type="number"
+          min="0"
+          step="0.5"
+          placeholder="e.g., 8.50"
+          required
+        />
+        <p class="form-error" data-cost-error aria-live="polite"></p>
+
+        <button type="submit" class="btn-primary">Post Ride</button>
+        <button type="button" class="btn-secondary" id="cancel-btn">Cancel</button>
+        <p class="form-error" data-submit-error aria-live="polite"></p>
+      </form>
+    </main>
+
+    <script src="post-ride.js"></script>
+  </body>
+</html>

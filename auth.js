@@ -73,7 +73,7 @@ forms.forEach((form) => {
         return;
       }
 
-      window.location.href = role === "passenger" ? "passenger-landing.html" : "index.html";
+      window.location.href = role === "passenger" ? "passenger-landing.html" : "rider-landing.html";
       return;
     }
 

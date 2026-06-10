@@ -615,6 +615,466 @@ input[aria-invalid="true"] {
   font-weight: 700;
 }
 
+/* ========== Rider Landing Page Styles ========== */
+
+.rider-main {
+  display: grid;
+  gap: 28px;
+  padding: 124px clamp(18px, 5vw, 64px) 44px;
+}
+
+.revenue-section {
+  display: grid;
+  grid-template-columns: 1fr 200px;
+  gap: 22px;
+  align-items: start;
+}
+
+.revenue-card {
+  border: 1px solid rgba(23, 32, 42, 0.08);
+  border-radius: 8px;
+  padding: 28px;
+  background: linear-gradient(135deg, #15616d 0%, #104d57 100%);
+  box-shadow: 0 16px 38px rgba(23, 32, 42, 0.08);
+  color: #ffffff;
+}
+
+.revenue-card .section-label {
+  margin: 0 0 8px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.revenue-card h2 {
+  margin: 0 0 18px;
+  color: #ffffff;
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
+}
+
+.revenue-amount {
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.post-ride-btn,
+.btn-primary,
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 24px;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.post-ride-btn {
+  background: #15616d;
+  color: #ffffff;
+  font-size: 1rem;
+  align-self: start;
+}
+
+.post-ride-btn:hover,
+.post-ride-btn:focus-visible {
+  background: #104d57;
+  outline: none;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(21, 97, 109, 0.3);
+}
+
+.btn-primary {
+  background: #15616d;
+  color: #ffffff;
+  margin-top: 12px;
+}
+
+.btn-primary:hover,
+.btn-primary:focus-visible {
+  background: #104d57;
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: #e0e0e0;
+  color: #17202a;
+  margin-left: 12px;
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus-visible {
+  background: #d0d0d0;
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.active-rides-section,
+.applications-section {
+  border: 1px solid rgba(23, 32, 42, 0.08);
+  border-radius: 8px;
+  padding: 22px;
+  background: #ffffff;
+  box-shadow: 0 16px 38px rgba(23, 32, 42, 0.08);
+}
+
+.ride-count,
+.application-count {
+  flex: 0 0 auto;
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: #15616d;
+  background: #edf7f7;
+  font-weight: 800;
+}
+
+.ride-list,
+.applications-list {
+  display: grid;
+  gap: 14px;
+}
+
+.ride-card {
+  border: 1px solid rgba(23, 32, 42, 0.08);
+  border-radius: 8px;
+  padding: 18px;
+  background: #fbfcfe;
+  display: grid;
+  gap: 14px;
+}
+
+.ride-card-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.ride-route {
+  flex: 1;
+}
+
+.location-label {
+  color: #52616b;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.location-name {
+  margin: 4px 0 12px;
+  color: #17202a;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.ride-actions {
+  display: flex;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.edit-ride-btn,
+.delete-ride-btn,
+.accept-app-btn,
+.reject-app-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  border: 1px solid;
+  border-radius: 6px;
+  padding: 0 12px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.edit-ride-btn {
+  color: #15616d;
+  background: #edf7f7;
+  border-color: #15616d;
+}
+
+.edit-ride-btn:hover,
+.edit-ride-btn:focus-visible {
+  background: #15616d;
+  color: #ffffff;
+  outline: none;
+}
+
+.delete-ride-btn,
+.reject-app-btn {
+  color: #c62828;
+  background: #fff1f1;
+  border-color: #c62828;
+}
+
+.delete-ride-btn:hover,
+.delete-ride-btn:focus-visible,
+.reject-app-btn:hover,
+.reject-app-btn:focus-visible {
+  background: #c62828;
+  color: #ffffff;
+  outline: none;
+}
+
+.accept-app-btn {
+  color: #4caf50;
+  background: #f1f8f4;
+  border-color: #4caf50;
+}
+
+.accept-app-btn:hover,
+.accept-app-btn:focus-visible {
+  background: #4caf50;
+  color: #ffffff;
+  outline: none;
+}
+
+.ride-card-details {
+  display: grid;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(23, 32, 42, 0.06);
+}
+
+.ride-card-details p {
+  margin: 0;
+  color: #52616b;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.ride-card-details strong {
+  color: #17202a;
+}
+
+.ride-date {
+  color: #9aa8ae !important;
+  font-size: 0.85rem !important;
+}
+
+/* Application Card */
+.application-card {
+  border: 1px solid rgba(23, 32, 42, 0.08);
+  border-radius: 8px;
+  padding: 18px;
+  background: #fbfcfe;
+  display: grid;
+  gap: 14px;
+}
+
+.application-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.passenger-name {
+  margin: 0;
+  color: #17202a;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.passenger-email {
+  margin: 4px 0 0;
+  color: #52616b;
+  font-size: 0.92rem;
+}
+
+.status-badge {
+  flex: 0 0 auto;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-accepted {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.application-details {
+  display: grid;
+  gap: 8px;
+  padding: 12px 0;
+  border-top: 1px solid rgba(23, 32, 42, 0.06);
+  border-bottom: 1px solid rgba(23, 32, 42, 0.06);
+}
+
+.application-details p {
+  margin: 0;
+  color: #52616b;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.application-details strong {
+  color: #17202a;
+}
+
+.application-date {
+  color: #9aa8ae !important;
+  font-size: 0.85rem !important;
+}
+
+.application-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+
+.modal[aria-hidden="false"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 28px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(23, 32, 42, 0.08);
+  padding-bottom: 16px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #17202a;
+  font-size: 1.4rem;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #52616b;
+  cursor: pointer;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.modal-close-btn:hover {
+  background: #f0f0f0;
+  color: #17202a;
+}
+
+.ride-form {
+  display: grid;
+  gap: 10px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  justify-content: flex-end;
+}
+
+.form-description {
+  margin: 8px 0 16px;
+  color: #52616b;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.post-ride-form {
+  width: min(100%, 580px);
+}
+
+.post-ride-form button {
+  min-height: 46px;
+  margin-top: 8px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 16px;
+  color: #ffffff;
+  background: #15616d;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.post-ride-form button:hover,
+.post-ride-form button:focus-visible {
+  background: #104d57;
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.post-ride-form .btn-secondary {
+  color: #17202a;
+  background: #e0e0e0;
+  margin-top: 8px;
+}
+
+.post-ride-form .btn-secondary:hover {
+  background: #d0d0d0;
+}
+
+.user-email {
+  color: #52616b;
+  font-size: 0.92rem;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: #edf7f7;
+}
+
 @media (max-width: 720px) {
   .site-header {
     align-items: flex-start;
@@ -675,5 +1135,53 @@ input[aria-invalid="true"] {
   .ride-card-top,
   .results-toolbar {
     flex-direction: column;
+  }
+
+  /* Rider Landing Responsive */
+  .rider-main {
+    padding-top: 190px;
+  }
+
+  .revenue-section {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .post-ride-btn {
+    width: 100%;
+  }
+
+  .ride-card-header,
+  .application-header {
+    flex-direction: column;
+  }
+
+  .ride-actions,
+  .application-actions {
+    width: 100%;
+  }
+
+  .edit-ride-btn,
+  .delete-ride-btn,
+  .accept-app-btn,
+  .reject-app-btn {
+    flex: 1;
+  }
+
+  .modal-content {
+    padding: 20px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .btn-secondary {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .post-ride-form {
+    width: 100%;
   }
 }
