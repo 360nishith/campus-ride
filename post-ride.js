@@ -164,12 +164,14 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // Display user email
-  document.querySelector("[data-user-email]").textContent = user.email;
-
   // Form submission
   const form = document.getElementById("post-ride-form");
   form.addEventListener("submit", handleFormSubmit);
+
+  // Profile button
+  document.getElementById("profile-btn").addEventListener("click", () => {
+    window.location.href = "rider-profile.html";
+  });
 
   // Cancel button
   const cancelBtn = document.getElementById("cancel-btn");

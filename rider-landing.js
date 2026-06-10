@@ -293,9 +293,6 @@ function loadDashboard() {
     return;
   }
 
-  // Display user email
-  document.querySelector("[data-user-email]").textContent = user.email;
-
   // Load rides
   const rides = getRiderRides(user.email);
   renderRides(rides);
@@ -318,6 +315,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   loadDashboard();
+
+  // Profile button
+  document.getElementById("profile-btn").addEventListener("click", () => {
+    window.location.href = "rider-profile.html";
+  });
 
   // Post Ride button
   document.getElementById("post-ride-btn").addEventListener("click", () => {
