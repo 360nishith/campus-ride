@@ -67,6 +67,171 @@
           </p>
         </div>
       </section>
+
+      <section class="account-section" aria-labelledby="account-title">
+        <div class="account-heading">
+          <p class="section-label">Accounts</p>
+          <h2 id="account-title">Signup and login</h2>
+        </div>
+
+        <div class="account-grid">
+          <form id="signup-passenger" class="account-card" data-account-form novalidate>
+            <span class="role-label">Passenger Signup</span>
+            <label for="passenger-signup-name">Full name</label>
+            <input id="passenger-signup-name" name="name" type="text" autocomplete="name" required />
+
+            <label for="passenger-signup-email">NMAMIT email</label>
+            <input
+              id="passenger-signup-email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="name@nmamit.in"
+              required
+            />
+            <p class="form-error" data-email-error aria-live="polite"></p>
+
+            <label for="passenger-signup-password">Set password</label>
+            <input
+              id="passenger-signup-password"
+              name="password"
+              type="password"
+              autocomplete="new-password"
+              minlength="6"
+              required
+            />
+
+            <button type="submit">Create passenger account</button>
+          </form>
+
+          <form id="signup-rider" class="account-card" data-account-form novalidate>
+            <span class="role-label">Rider Signup</span>
+            <label for="rider-signup-name">Full name</label>
+            <input id="rider-signup-name" name="name" type="text" autocomplete="name" required />
+
+            <label for="rider-signup-email">NMAMIT email</label>
+            <input
+              id="rider-signup-email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="name@nmamit.in"
+              required
+            />
+            <p class="form-error" data-email-error aria-live="polite"></p>
+
+            <label for="rider-signup-password">Set password</label>
+            <input
+              id="rider-signup-password"
+              name="password"
+              type="password"
+              autocomplete="new-password"
+              minlength="6"
+              required
+            />
+
+            <button type="submit">Create rider account</button>
+          </form>
+
+          <form id="login-passenger" class="account-card" data-account-form novalidate>
+            <span class="role-label">Passenger Login</span>
+            <label for="passenger-login-userid">User ID</label>
+            <input
+              id="passenger-login-userid"
+              name="email"
+              type="email"
+              autocomplete="username"
+              placeholder="name@nmamit.in"
+              required
+            />
+            <p class="form-error" data-email-error aria-live="polite"></p>
+
+            <label for="passenger-login-password">Password</label>
+            <input
+              id="passenger-login-password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              required
+            />
+
+            <button type="submit">Login as passenger</button>
+            <a class="forgot-link" href="#forgot-password">Forgot password?</a>
+          </form>
+
+          <form id="login-rider" class="account-card" data-account-form novalidate>
+            <span class="role-label">Rider Login</span>
+            <label for="rider-login-userid">User ID</label>
+            <input
+              id="rider-login-userid"
+              name="email"
+              type="email"
+              autocomplete="username"
+              placeholder="name@nmamit.in"
+              required
+            />
+            <p class="form-error" data-email-error aria-live="polite"></p>
+
+            <label for="rider-login-password">Password</label>
+            <input
+              id="rider-login-password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              required
+            />
+
+            <button type="submit">Login as rider</button>
+            <a class="forgot-link" href="#forgot-password">Forgot password?</a>
+          </form>
+        </div>
+
+        <form id="forgot-password" class="forgot-card" data-account-form novalidate>
+          <span class="role-label">Forgot Password</span>
+          <label for="forgot-email">NMAMIT email</label>
+          <input
+            id="forgot-email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            placeholder="name@nmamit.in"
+            required
+          />
+          <p class="form-error" data-email-error aria-live="polite"></p>
+          <button type="submit">Send reset link</button>
+        </form>
+      </section>
     </main>
+
+    <script>
+      const nmamitEmailPattern = /^[^\s@]+@nmamit\.in$/;
+      const forms = document.querySelectorAll("[data-account-form]");
+
+      forms.forEach((form) => {
+        const emailInput = form.querySelector('input[name="email"]');
+        const emailError = form.querySelector("[data-email-error]");
+
+        emailInput.addEventListener("input", () => {
+          emailError.textContent = "";
+          emailInput.removeAttribute("aria-invalid");
+        });
+
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const email = emailInput.value.trim().toLowerCase();
+
+          if (!nmamitEmailPattern.test(email)) {
+            emailError.textContent = "enter valid email address";
+            emailInput.setAttribute("aria-invalid", "true");
+            emailInput.focus();
+            return;
+          }
+
+          emailError.textContent = "";
+          emailInput.removeAttribute("aria-invalid");
+          form.reset();
+        });
+      });
+    </script>
   </body>
 </html>
