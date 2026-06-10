@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Campus Ride</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#home" aria-label="Campus Ride home">
+        <span class="brand-mark">CR</span>
+        <span>CAMPUS RIDE</span>
+      </a>
+
+      <nav class="nav-actions" aria-label="Account actions">
+        <div class="dropdown">
+          <button class="nav-button" type="button" aria-haspopup="true">
+            Signup
+            <span aria-hidden="true">&#9662;</span>
+          </button>
+          <div class="dropdown-menu">
+            <a href="#signup-passenger">Passenger</a>
+            <a href="#signup-rider">Rider</a>
+          </div>
+        </div>
+
+        <div class="dropdown">
+          <button class="nav-button nav-button-primary" type="button" aria-haspopup="true">
+            Login
+            <span aria-hidden="true">&#9662;</span>
+          </button>
+          <div class="dropdown-menu">
+            <a href="#login-passenger">Passenger</a>
+            <a href="#login-rider">Rider</a>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main id="home">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-content">
+          <p class="eyebrow">NMAMIT student car pooling system</p>
+          <h1 id="hero-title">CAMPUS RIDE</h1>
+          <p class="hero-text">
+            A simple way for NMAMIT students to share rides, reduce travel costs,
+            and make daily campus commutes easier.
+          </p>
+        </div>
+      </section>
+
+      <section id="about" class="about-section" aria-labelledby="about-title">
+        <div class="about-content">
+          <p class="section-label">About Us</p>
+          <h2 id="about-title">Built for NMAMIT students</h2>
+          <p>
+            Campus Ride connects passengers looking for a seat with riders who
+            have space available. The goal is to make campus travel safer, more
+            affordable, and more convenient for the student community.
+          </p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
