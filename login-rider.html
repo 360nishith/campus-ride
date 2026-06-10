@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Campus Ride</title>
+    <title>Rider Login | Campus Ride</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -12,7 +12,7 @@
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body>
+  <body class="auth-page">
     <header class="site-header">
       <a class="brand" href="index.html" aria-label="Campus Ride home">
         <span class="brand-mark">CR</span>
@@ -44,30 +44,36 @@
       </nav>
     </header>
 
-    <main id="home">
-      <section class="hero" aria-labelledby="hero-title">
-        <div class="hero-content">
-          <p class="eyebrow">NMAMIT student car pooling system</p>
-          <h1 id="hero-title">CAMPUS RIDE</h1>
-          <p class="hero-text">
-            A simple way for NMAMIT students to share rides, reduce travel costs,
-            and make daily campus commutes easier.
-          </p>
-        </div>
-      </section>
+    <main class="auth-main">
+      <form class="account-card auth-card" data-account-form novalidate>
+        <span class="role-label">Rider Login</span>
+        <h1>Login as rider</h1>
 
-      <section id="about" class="about-section" aria-labelledby="about-title">
-        <div class="about-content">
-          <p class="section-label">About Us</p>
-          <h2 id="about-title">Built for NMAMIT students</h2>
-          <p>
-            Campus Ride connects passengers looking for a seat with riders who
-            have space available. The goal is to make campus travel safer, more
-            affordable, and more convenient for the student community.
-          </p>
-        </div>
-      </section>
+        <label for="rider-login-userid">User ID</label>
+        <input
+          id="rider-login-userid"
+          name="email"
+          type="email"
+          autocomplete="username"
+          placeholder="name@nmamit.in"
+          required
+        />
+        <p class="form-error" data-email-error aria-live="polite"></p>
 
+        <label for="rider-login-password">Password</label>
+        <input
+          id="rider-login-password"
+          name="password"
+          type="password"
+          autocomplete="current-password"
+          required
+        />
+
+        <button type="submit">Login as rider</button>
+        <a class="forgot-link" href="forgot-password.html">Forgot password?</a>
+      </form>
     </main>
+
+    <script src="auth.js"></script>
   </body>
 </html>
