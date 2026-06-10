@@ -389,6 +389,232 @@ input[aria-invalid="true"] {
   letter-spacing: 0;
 }
 
+.dashboard-page {
+  background: #f5f7fb;
+}
+
+.passenger-main {
+  display: grid;
+  grid-template-columns: minmax(280px, 420px) minmax(0, 1fr);
+  gap: 22px;
+  padding: 124px clamp(18px, 5vw, 64px) 44px;
+}
+
+.ride-search-panel,
+.ride-results-section,
+.booking-section {
+  min-width: 0;
+  border: 1px solid rgba(23, 32, 42, 0.08);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 16px 38px rgba(23, 32, 42, 0.08);
+}
+
+.ride-search-panel {
+  align-self: start;
+  padding: 22px;
+}
+
+.ride-heading h1,
+.results-toolbar h2 {
+  margin: 0;
+  color: #17202a;
+  letter-spacing: 0;
+}
+
+.ride-heading h1 {
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.ride-heading p:last-child {
+  margin: 12px 0 0;
+  color: #52616b;
+  line-height: 1.7;
+}
+
+.ride-search-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: 1fr 120px;
+  gap: 12px;
+}
+
+.ride-search-form button,
+.ride-select-button,
+.payment-button,
+.delete-booking-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 16px;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.ride-search-form button,
+.ride-select-button,
+.payment-button {
+  color: #ffffff;
+  background: #15616d;
+}
+
+.ride-search-form button:hover,
+.ride-search-form button:focus-visible,
+.ride-select-button:hover,
+.ride-select-button:focus-visible,
+.payment-button:hover,
+.payment-button:focus-visible {
+  background: #104d57;
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.ride-select-button:disabled {
+  background: #9aa8ae;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ride-results-section {
+  padding: 22px;
+}
+
+.booking-section {
+  grid-column: 1 / -1;
+  padding: 22px;
+}
+
+.results-toolbar {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 16px;
+}
+
+.results-toolbar h2 {
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+}
+
+.ride-count {
+  flex: 0 0 auto;
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: #15616d;
+  background: #edf7f7;
+  font-weight: 800;
+}
+
+.ride-list {
+  display: grid;
+  gap: 14px;
+}
+
+.ride-card {
+  display: grid;
+  gap: 14px;
+  border: 1px solid rgba(23, 32, 42, 0.08);
+  border-radius: 8px;
+  padding: 18px;
+  background: #fbfcfe;
+}
+
+.ride-card-top {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.ride-card h3,
+.booking-summary h3 {
+  margin: 0;
+  color: #17202a;
+  font-size: 1.1rem;
+  letter-spacing: 0;
+}
+
+.ride-card p,
+.booking-summary p {
+  margin: 6px 0 0;
+  color: #52616b;
+  line-height: 1.5;
+}
+
+.ride-card strong {
+  color: #15616d;
+  font-size: 1.1rem;
+}
+
+.ride-meta {
+  display: grid;
+  grid-template-columns: 1.3fr 0.6fr 1fr;
+  gap: 12px;
+  margin: 0;
+}
+
+.ride-meta div {
+  min-width: 0;
+}
+
+.ride-meta dt {
+  color: #52616b;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.ride-meta dd {
+  margin: 4px 0 0;
+  color: #17202a;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.booking-card {
+  border: 1px dashed rgba(21, 97, 109, 0.35);
+  border-radius: 8px;
+  padding: 18px;
+  background: #fbfcfe;
+}
+
+.booking-summary {
+  display: grid;
+  gap: 10px;
+}
+
+.payment-line {
+  font-size: 1.05rem;
+}
+
+.delete-booking-button {
+  color: #c62828;
+  background: #fff1f1;
+}
+
+.delete-booking-button:hover,
+.delete-booking-button:focus-visible {
+  background: #ffe0e0;
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.empty-state {
+  margin: 0;
+  color: #52616b;
+  font-weight: 700;
+}
+
 @media (max-width: 720px) {
   .site-header {
     align-items: flex-start;
@@ -434,5 +660,20 @@ input[aria-invalid="true"] {
 
   .form-row {
     grid-template-columns: 1fr;
+  }
+
+  .passenger-main {
+    grid-template-columns: 1fr;
+    padding-top: 190px;
+  }
+
+  .filter-grid,
+  .ride-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .ride-card-top,
+  .results-toolbar {
+    flex-direction: column;
   }
 }

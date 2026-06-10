@@ -46,7 +46,7 @@ if (!email) {
   errorMessage.textContent = "Login before passenger onboarding.";
   form.querySelector("button").disabled = true;
 } else if (existingVerification?.collegeIdCollected) {
-  window.location.href = "index.html";
+  window.location.href = "passenger-landing.html";
 } else {
   emailInput.value = email;
 }
@@ -81,6 +81,6 @@ form.addEventListener("submit", (event) => {
 
   successMessage.textContent = "Passenger onboarding completed.";
   window.setTimeout(() => {
-    window.location.href = "index.html";
+    window.location.href = "passenger-landing.html";
   }, 700);
 });

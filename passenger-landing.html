@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Passenger Rides | Campus Ride</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="dashboard-page">
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Campus Ride home">
+        <span class="brand-mark">CR</span>
+        <span>CAMPUS RIDE</span>
+      </a>
+
+      <nav class="nav-actions" aria-label="Passenger actions">
+        <a class="nav-button nav-button-primary" href="passenger-landing.html">Passenger</a>
+        <a class="nav-button" href="index.html">Home</a>
+      </nav>
+    </header>
+
+    <main class="passenger-main">
+      <section class="ride-search-panel" aria-labelledby="passenger-title">
+        <div class="ride-heading">
+          <p class="section-label">Passenger</p>
+          <h1 id="passenger-title">Find a campus ride</h1>
+          <p>Search NMAMIT routes, compare seats and fare, then book with the rider's UPI ID.</p>
+        </div>
+
+        <form class="ride-search-form" data-ride-search novalidate>
+          <label for="start-location">Start location</label>
+          <input
+            id="start-location"
+            name="start"
+            type="text"
+            placeholder="NMAMIT main gate"
+            autocomplete="street-address"
+            required
+          />
+
+          <label for="destination-location">Destination location</label>
+          <input
+            id="destination-location"
+            name="destination"
+            type="text"
+            placeholder="Karkala bus stand"
+            autocomplete="street-address"
+            required
+          />
+
+          <div class="filter-grid">
+            <div>
+              <label for="via-filter">Via location</label>
+              <input id="via-filter" name="via" type="text" placeholder="Nitte, Belman" />
+            </div>
+
+            <div>
+              <label for="price-filter">Max price</label>
+              <input id="price-filter" name="price" type="number" min="0" step="10" placeholder="80" />
+            </div>
+          </div>
+
+          <button type="submit">Show available rides</button>
+          <p class="form-error" data-search-error aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="ride-results-section" aria-labelledby="rides-title">
+        <div class="results-toolbar">
+          <div>
+            <p class="section-label">Available Rides</p>
+            <h2 id="rides-title">Choose a ride</h2>
+          </div>
+          <span class="ride-count" data-ride-count>0 rides</span>
+        </div>
+
+        <div class="ride-list" data-ride-list></div>
+      </section>
+
+      <section class="booking-section" aria-labelledby="booking-title">
+        <div class="results-toolbar">
+          <div>
+            <p class="section-label">Booking</p>
+            <h2 id="booking-title">Your selected ride</h2>
+          </div>
+        </div>
+
+        <div class="booking-card" data-booking-card>
+          <p class="empty-state">Select a ride to see payment details.</p>
+        </div>
+      </section>
+    </main>
+
+    <script src="passenger-landing.js"></script>
+  </body>
+</html>
