@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rider Onboarding | Campus Ride</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="auth-page">
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Campus Ride home">
+        <span class="brand-mark">CR</span>
+        <span>CAMPUS RIDE</span>
+      </a>
+
+      <nav class="nav-actions" aria-label="Account actions">
+        <div class="dropdown">
+          <button class="nav-button" type="button" aria-haspopup="true">
+            Signup
+            <span aria-hidden="true">&#9662;</span>
+          </button>
+          <div class="dropdown-menu">
+            <a href="signup-passenger.html">Passenger</a>
+            <a href="signup-rider.html">Rider</a>
+          </div>
+        </div>
+
+        <div class="dropdown">
+          <button class="nav-button nav-button-primary" type="button" aria-haspopup="true">
+            Login
+            <span aria-hidden="true">&#9662;</span>
+          </button>
+          <div class="dropdown-menu">
+            <a href="login-passenger.html">Passenger</a>
+            <a href="login-rider.html">Rider</a>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="auth-main">
+      <form class="account-card auth-card onboarding-card" data-rider-onboarding novalidate>
+        <span class="role-label">Rider Onboarding</span>
+        <h1>Verify rider details</h1>
+        <p class="form-note">
+          Complete this once to offer rides to other NMAMIT students.
+        </p>
+
+        <label for="rider-onboarding-email">NMAMIT email</label>
+        <input id="rider-onboarding-email" name="email" type="email" readonly />
+
+        <label for="rider-onboarding-name">Full name</label>
+        <input id="rider-onboarding-name" name="name" type="text" autocomplete="name" required />
+
+        <label for="rider-onboarding-usn">USN</label>
+        <input id="rider-onboarding-usn" name="usn" type="text" placeholder="4NM..." required />
+
+        <div class="form-row">
+          <div>
+            <label for="rider-onboarding-branch">Branch</label>
+            <input id="rider-onboarding-branch" name="branch" type="text" placeholder="CSE" required />
+          </div>
+
+          <div>
+            <label for="rider-onboarding-year">Year</label>
+            <select id="rider-onboarding-year" name="year" required>
+              <option value="">Select</option>
+              <option value="1">1st year</option>
+              <option value="2">2nd year</option>
+              <option value="3">3rd year</option>
+              <option value="4">4th year</option>
+            </select>
+          </div>
+        </div>
+
+        <label for="rider-onboarding-phone">Phone number</label>
+        <input
+          id="rider-onboarding-phone"
+          name="phone"
+          type="tel"
+          autocomplete="tel"
+          pattern="[0-9]{10}"
+          placeholder="10-digit mobile number"
+          required
+        />
+
+        <label for="rider-onboarding-upi">UPI ID</label>
+        <input
+          id="rider-onboarding-upi"
+          name="upiId"
+          type="text"
+          inputmode="email"
+          placeholder="name@bank"
+          required
+        />
+
+        <label for="rider-onboarding-dl-front">Driving licence photo - front</label>
+        <input
+          id="rider-onboarding-dl-front"
+          name="dlFront"
+          type="file"
+          accept="image/*"
+          required
+        />
+
+        <label for="rider-onboarding-dl-back">Driving licence photo - back</label>
+        <input
+          id="rider-onboarding-dl-back"
+          name="dlBack"
+          type="file"
+          accept="image/*"
+          required
+        />
+
+        <section class="onboarding-section" data-college-id-section>
+          <p class="form-note">
+            Your college ID has not been collected yet. Upload both sides to complete student
+            verification.
+          </p>
+
+          <label for="rider-onboarding-id-front">College ID photo - front</label>
+          <input
+            id="rider-onboarding-id-front"
+            name="idFront"
+            type="file"
+            accept="image/*"
+            required
+          />
+
+          <label for="rider-onboarding-id-back">College ID photo - back</label>
+          <input
+            id="rider-onboarding-id-back"
+            name="idBack"
+            type="file"
+            accept="image/*"
+            required
+          />
+        </section>
+
+        <p class="form-success" data-existing-id-message aria-live="polite"></p>
+        <p class="form-error" data-onboarding-error aria-live="polite"></p>
+        <p class="form-success" data-onboarding-success aria-live="polite"></p>
+
+        <button type="submit">Finish rider onboarding</button>
+      </form>
+    </main>
+
+    <script src="rider-onboarding.js"></script>
+  </body>
+</html>

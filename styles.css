@@ -377,6 +377,11 @@ input[aria-invalid="true"] {
   width: min(100%, 640px);
 }
 
+.onboarding-section:not([hidden]) {
+  display: grid;
+  gap: 10px;
+}
+
 .auth-card h1 {
   margin: 0 0 8px;
   color: #17202a;

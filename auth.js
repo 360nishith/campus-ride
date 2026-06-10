@@ -16,12 +16,18 @@ function hasStudentVerification(email) {
   return Boolean(verifications[email]?.collegeIdCollected);
 }
 
-function saveCurrentUser(email, role) {
+function hasRiderVerification(email) {
+  const verifications = getStudentVerifications();
+  return Boolean(verifications[email]?.riderOnboardingComplete);
+}
+
+function saveCurrentUser(email, role, name = "") {
   localStorage.setItem(
     currentUserKey,
     JSON.stringify({
       email,
       role,
+      name,
       loggedInAt: new Date().toISOString(),
     })
   );
@@ -52,6 +58,8 @@ forms.forEach((form) => {
     emailError.textContent = "";
     emailInput.removeAttribute("aria-invalid");
 
+    const name = form.querySelector('input[name="name"]')?.value.trim() || "";
+
     if (mode === "login") {
       saveCurrentUser(email, role);
 
@@ -60,15 +68,25 @@ forms.forEach((form) => {
         return;
       }
 
+      if (role === "rider" && !hasRiderVerification(email)) {
+        window.location.href = `rider-onboarding.html?email=${encodeURIComponent(email)}`;
+        return;
+      }
+
       window.location.href = "index.html";
       return;
     }
 
     if (mode === "signup") {
-      saveCurrentUser(email, role);
+      saveCurrentUser(email, role, name);
 
       if (role === "passenger") {
         window.location.href = `passenger-onboarding.html?email=${encodeURIComponent(email)}`;
+        return;
+      }
+
+      if (role === "rider") {
+        window.location.href = `rider-onboarding.html?email=${encodeURIComponent(email)}`;
         return;
       }
     }
