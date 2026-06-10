@@ -1,96 +1,111 @@
-const currentUserKey = "campusRideCurrentUser";
-const riderRidesKey = "campusRideRiderRides";
-const passengerApplicationsKey = "campusRideApplications";
+import { supabase } from "./supabase-client.js";
+
+// ========== Module-level state ==========
+
+let currentUser = null;
 
 // ========== Utility Functions ==========
-
-function getCurrentUser() {
-  try {
-    const user = JSON.parse(localStorage.getItem(currentUserKey));
-    if (user && user.role === "rider") {
-      return user;
-    }
-  } catch (error) {
-    console.error("Error getting current user:", error);
-  }
-  return null;
-}
 
 function redirectToLogin() {
   window.location.href = "login-rider.html";
 }
 
-function logout() {
-  localStorage.removeItem(currentUserKey);
-  redirectToLogin();
-}
+// ========== Data Fetching ==========
 
-function getAllRides() {
-  try {
-    return JSON.parse(localStorage.getItem(riderRidesKey)) || [];
-  } catch (error) {
-    console.error("Error getting rides:", error);
-    return [];
-  }
-}
+async function loadDashboard() {
+  if (!currentUser) return;
 
-function getRiderRides(email) {
-  const allRides = getAllRides();
-  return allRides.filter((ride) => ride.riderEmail === email);
-}
+  // 1. Fetch rider's rides
+  const { data: rides, error: ridesError } = await supabase
+    .from("rides")
+    .select("*")
+    .eq("rider_id", currentUser.id)
+    .order("created_at", { ascending: false });
 
-function saveRide(ride) {
-  const allRides = getAllRides();
-  const existingIndex = allRides.findIndex((r) => r.id === ride.id);
-
-  if (existingIndex >= 0) {
-    allRides[existingIndex] = ride;
-  } else {
-    allRides.push(ride);
+  if (ridesError) {
+    console.error("Error fetching rides:", ridesError);
+    return;
   }
 
-  localStorage.setItem(riderRidesKey, JSON.stringify(allRides));
-}
+  const rideIds = rides.map((r) => r.id);
 
-function deleteRide(rideId) {
-  const allRides = getAllRides();
-  const filtered = allRides.filter((ride) => ride.id !== rideId);
-  localStorage.setItem(riderRidesKey, JSON.stringify(filtered));
-}
+  // 2. Fetch seat summaries for these rides
+  let seatSummaries = [];
+  if (rideIds.length > 0) {
+    const { data: summaryData, error: summaryError } = await supabase
+      .from("ride_seat_summary")
+      .select("*")
+      .in("ride_id", rideIds);
 
-function getApplicationsForRider(riderEmail) {
-  try {
-    const allApplications = JSON.parse(localStorage.getItem(passengerApplicationsKey)) || [];
-    return allApplications.filter((app) => app.riderEmail === riderEmail);
-  } catch (error) {
-    console.error("Error getting applications:", error);
-    return [];
+    if (!summaryError && summaryData) {
+      seatSummaries = summaryData;
+    }
   }
-}
 
-function calculateTotalRevenue(rides) {
-  return rides.reduce((total, ride) => {
-    const seatsBooked = ride.seatsBooked || 0;
-    const distance = ride.estimatedDistance || 0;
-    const revenue = seatsBooked * distance * ride.costPerKm;
-    return total + revenue;
-  }, 0);
+  // Build a lookup map: ride_id → seat summary
+  const seatMap = {};
+  seatSummaries.forEach((s) => {
+    seatMap[s.ride_id] = s;
+  });
+
+  // 3. Fetch booking applications for this rider's rides
+  let bookings = [];
+  if (rideIds.length > 0) {
+    const { data: bookingData, error: bookingError } = await supabase
+      .from("ride_bookings")
+      .select("*")
+      .in("ride_id", rideIds);
+
+    if (!bookingError && bookingData) {
+      bookings = bookingData;
+    }
+  }
+
+  // 4. Fetch passenger profiles for the bookings
+  const passengerIds = [...new Set(bookings.map((b) => b.passenger_id))];
+  let profileMap = {};
+  if (passengerIds.length > 0) {
+    const { data: profiles, error: profilesError } = await supabase
+      .from("profiles")
+      .select("id, full_name, email")
+      .in("id", passengerIds);
+
+    if (!profilesError && profiles) {
+      profiles.forEach((p) => {
+        profileMap[p.id] = p;
+      });
+    }
+  }
+
+  // Build a lookup map: ride_id → ride
+  const rideMap = {};
+  rides.forEach((r) => {
+    rideMap[r.id] = r;
+  });
+
+  // Render
+  renderRides(rides, seatMap);
+  renderApplications(bookings, profileMap, rideMap);
+  updateRevenue(rides, seatMap);
 }
 
 // ========== Render Functions ==========
 
-function renderRides(rides) {
+function renderRides(rides, seatMap) {
   const rideList = document.querySelector("[data-active-ride-list]");
   const rideCount = document.querySelector("[data-active-ride-count]");
 
   rideCount.textContent = `${rides.length} ride${rides.length !== 1 ? "s" : ""}`;
 
   if (rides.length === 0) {
-    rideList.innerHTML = '<p class="empty-state">No rides posted yet. Click "Post a Ride" to get started.</p>';
+    rideList.innerHTML =
+      '<p class="empty-state">No rides posted yet. Click "Post a Ride" to get started.</p>';
     return;
   }
 
-  rideList.innerHTML = rides.map((ride) => createRideCard(ride)).join("");
+  rideList.innerHTML = rides
+    .map((ride) => createRideCard(ride, seatMap[ride.id]))
+    .join("");
 
   // Attach event listeners
   rideList.querySelectorAll(".edit-ride-btn").forEach((btn) => {
@@ -102,18 +117,29 @@ function renderRides(rides) {
   });
 }
 
-function createRideCard(ride) {
-  const seatsBooked = ride.seatsBooked || 0;
-  const revenue = (seatsBooked * (ride.estimatedDistance || 0) * ride.costPerKm).toFixed(2);
+function createRideCard(ride, seatSummary) {
+  const seatsBooked = seatSummary ? seatSummary.seats_booked : 0;
+  const seatsAvailable = seatSummary
+    ? seatSummary.seats_available
+    : ride.seats_total;
+  const estimatedDistance = parseFloat(ride.estimated_distance_km) || 0;
+  const revenue = (seatsBooked * estimatedDistance * ride.cost_per_km).toFixed(
+    2
+  );
+
+  const viaDisplay =
+    ride.via_locations && ride.via_locations.length > 0
+      ? `<p><strong>Via:</strong> ${ride.via_locations.join(", ")}</p>`
+      : "";
 
   return `
     <div class="ride-card" data-ride-id="${ride.id}">
       <div class="ride-card-header">
         <div class="ride-route">
           <span class="location-label">From</span>
-          <p class="location-name">${ride.startLocation}</p>
+          <p class="location-name">${ride.start_location}</p>
           <span class="location-label">To</span>
-          <p class="location-name">${ride.destinationLocation}</p>
+          <p class="location-name">${ride.destination_location}</p>
         </div>
         <div class="ride-actions">
           <button class="edit-ride-btn" data-ride-id="${ride.id}" title="Edit ride">
@@ -126,49 +152,76 @@ function createRideCard(ride) {
       </div>
 
       <div class="ride-card-details">
-        ${ride.via ? `<p><strong>Via:</strong> ${ride.via}</p>` : ""}
-        <p><strong>Seats Available:</strong> ${ride.seatsAvailable - seatsBooked}/${ride.seatsAvailable}</p>
-        <p><strong>Cost per km:</strong> ₹${ride.costPerKm}/km</p>
+        ${viaDisplay}
+        <p><strong>Seats Available:</strong> ${seatsAvailable}/${ride.seats_total}</p>
+        <p><strong>Cost per km:</strong> ₹${ride.cost_per_km}/km</p>
         <p><strong>Revenue from this ride:</strong> ₹${revenue}</p>
-        <p class="ride-date"><small>Posted on ${new Date(ride.createdAt).toLocaleDateString()}</small></p>
+        <p class="ride-date"><small>Posted on ${new Date(ride.created_at).toLocaleDateString()}</small></p>
       </div>
     </div>
   `;
 }
 
-function renderApplications(applications) {
+function renderApplications(bookings, profileMap, rideMap) {
   const applicationsList = document.querySelector("[data-applications-list]");
   const applicationCount = document.querySelector("[data-application-count]");
 
-  applicationCount.textContent = `${applications.length} request${applications.length !== 1 ? "s" : ""}`;
+  applicationCount.textContent = `${bookings.length} request${bookings.length !== 1 ? "s" : ""}`;
 
-  if (applications.length === 0) {
-    applicationsList.innerHTML = '<p class="empty-state">No passenger applications yet.</p>';
+  if (bookings.length === 0) {
+    applicationsList.innerHTML =
+      '<p class="empty-state">No passenger applications yet.</p>';
     return;
   }
 
-  applicationsList.innerHTML = applications.map((app) => createApplicationCard(app)).join("");
+  applicationsList.innerHTML = bookings
+    .map((app) => createApplicationCard(app, profileMap, rideMap))
+    .join("");
+
+  // Attach accept/reject listeners
+  applicationsList.querySelectorAll(".accept-app-btn").forEach((btn) => {
+    btn.addEventListener("click", () =>
+      handleApplicationAction(btn.dataset.appId, "accepted")
+    );
+  });
+
+  applicationsList.querySelectorAll(".reject-app-btn").forEach((btn) => {
+    btn.addEventListener("click", () =>
+      handleApplicationAction(btn.dataset.appId, "rejected")
+    );
+  });
 }
 
-function createApplicationCard(application) {
-  const ride = getAllRides().find((r) => r.id === application.rideId);
+function createApplicationCard(application, profileMap, rideMap) {
+  const ride = rideMap[application.ride_id];
+  const passenger = profileMap[application.passenger_id] || {};
+
   if (!ride) return "";
+
+  const passengerName = passenger.full_name || "Unknown";
+  const passengerEmail = passenger.email || "Unknown";
+  const estimatedDistance = parseFloat(ride.estimated_distance_km) || 0;
+  const estimatedFare = (
+    application.seats_requested *
+    estimatedDistance *
+    ride.cost_per_km
+  ).toFixed(2);
 
   return `
     <div class="application-card">
       <div class="application-header">
         <div>
-          <p class="passenger-name"><strong>${application.passengerName}</strong></p>
-          <p class="passenger-email">${application.passengerEmail}</p>
+          <p class="passenger-name"><strong>${passengerName}</strong></p>
+          <p class="passenger-email">${passengerEmail}</p>
         </div>
         <span class="status-badge status-${application.status}">${application.status}</span>
       </div>
 
       <div class="application-details">
-        <p><strong>Ride:</strong> ${ride.startLocation} → ${ride.destinationLocation}</p>
-        <p><strong>Seats Requested:</strong> ${application.seatsRequested}</p>
-        <p><strong>Estimated Fare:</strong> ₹${(application.seatsRequested * (ride.estimatedDistance || 0) * ride.costPerKm).toFixed(2)}</p>
-        <p class="application-date"><small>Applied on ${new Date(application.appliedAt).toLocaleDateString()}</small></p>
+        <p><strong>Ride:</strong> ${ride.start_location} → ${ride.destination_location}</p>
+        <p><strong>Seats Requested:</strong> ${application.seats_requested}</p>
+        <p><strong>Estimated Fare:</strong> ₹${estimatedFare}</p>
+        <p class="application-date"><small>Applied on ${new Date(application.applied_at || application.created_at).toLocaleDateString()}</small></p>
       </div>
 
       <div class="application-actions">
@@ -183,35 +236,83 @@ function createApplicationCard(application) {
   `;
 }
 
-function updateRevenue() {
-  const user = getCurrentUser();
-  if (!user) return;
+function updateRevenue(rides, seatMap) {
+  const totalRevenue = rides.reduce((total, ride) => {
+    const summary = seatMap[ride.id];
+    const seatsBooked = summary ? summary.seats_booked : 0;
+    const distance = parseFloat(ride.estimated_distance_km) || 0;
+    const revenue = seatsBooked * distance * ride.cost_per_km;
+    return total + revenue;
+  }, 0);
 
-  const rides = getRiderRides(user.email);
-  const totalRevenue = calculateTotalRevenue(rides);
   const revenueDisplay = document.querySelector("[data-total-revenue]");
   revenueDisplay.textContent = `₹${totalRevenue.toFixed(2)}`;
 }
 
+// ========== Application Actions ==========
+
+async function handleApplicationAction(appId, newStatus) {
+  const { error } = await supabase
+    .from("ride_bookings")
+    .update({
+      status: newStatus,
+      responded_at: new Date().toISOString(),
+    })
+    .eq("id", appId);
+
+  if (error) {
+    console.error(`Error ${newStatus} application:`, error);
+    alert(`Failed to ${newStatus} application. Please try again.`);
+    return;
+  }
+
+  await loadDashboard();
+}
+
 // ========== Modal Functions ==========
 
-function openEditModal(rideId) {
-  const user = getCurrentUser();
-  if (!user) return;
+async function openEditModal(rideId) {
+  if (!currentUser) return;
 
-  const ride = getAllRides().find((r) => r.id === rideId && r.riderEmail === user.email);
-  if (!ride) {
+  // Fetch the specific ride
+  const { data: ride, error } = await supabase
+    .from("rides")
+    .select("*")
+    .eq("id", rideId)
+    .eq("rider_id", currentUser.id)
+    .maybeSingle();
+
+  if (error || !ride) {
     alert("Ride not found");
     return;
   }
 
   const form = document.getElementById("edit-ride-form");
   form.querySelector('input[name="rideId"]').value = ride.id;
-  form.querySelector('input[name="startLocation"]').value = ride.startLocation;
-  form.querySelector('input[name="destinationLocation"]').value = ride.destinationLocation;
-  form.querySelector('input[name="via"]').value = ride.via || "";
-  form.querySelector('input[name="seatsAvailable"]').value = ride.seatsAvailable;
-  form.querySelector('input[name="costPerKm"]').value = ride.costPerKm;
+  form.querySelector('input[name="startLocation"]').value =
+    ride.start_location;
+  form.querySelector('input[name="destinationLocation"]').value =
+    ride.destination_location;
+  form.querySelector('input[name="via"]').value = (
+    ride.via_locations || []
+  ).join(", ");
+  form.querySelector('input[name="seatsAvailable"]').value = ride.seats_total;
+  form.querySelector('input[name="costPerKm"]').value = ride.cost_per_km;
+
+  // Prefill vehicle model and number plate
+  let model = "";
+  let plate = "";
+  if (ride.vehicle_details) {
+    const match = ride.vehicle_details.match(/^(.*?)\s*\((.*?)\)$/);
+    if (match) {
+      model = match[1];
+      plate = match[2];
+    } else {
+      model = ride.vehicle_details;
+    }
+  }
+  form.querySelector('input[name="vehicleModel"]').value = model;
+  form.querySelector('input[name="vehiclePlate"]').value = plate;
 
   const modal = document.getElementById("edit-ride-modal");
   modal.setAttribute("aria-hidden", "false");
@@ -222,102 +323,135 @@ function closeEditModal() {
   modal.setAttribute("aria-hidden", "true");
 }
 
-function confirmDeleteRide(rideId) {
-  const user = getCurrentUser();
-  if (!user) return;
+async function confirmDeleteRide(rideId) {
+  if (!currentUser) return;
 
-  const ride = getAllRides().find((r) => r.id === rideId && r.riderEmail === user.email);
-  if (!ride) {
-    alert("Ride not found");
-    return;
-  }
+  if (confirm("Are you sure you want to delete this ride?")) {
+    const { error } = await supabase
+      .from("rides")
+      .delete()
+      .eq("id", rideId)
+      .eq("rider_id", currentUser.id);
 
-  if (confirm(`Delete ride from ${ride.startLocation} to ${ride.destinationLocation}?`)) {
-    deleteRide(rideId);
-    loadDashboard();
+    if (error) {
+      console.error("Error deleting ride:", error);
+      alert("Failed to delete ride. Please try again.");
+      return;
+    }
+
+    await loadDashboard();
   }
 }
 
 // ========== Event Handlers ==========
 
-function handleEditSubmit(event) {
+async function handleEditSubmit(event) {
   event.preventDefault();
 
-  const user = getCurrentUser();
-  if (!user) {
+  if (!currentUser) {
     redirectToLogin();
     return;
   }
 
   const form = event.target;
   const rideId = form.querySelector('input[name="rideId"]').value;
-  const updatedRide = {
-    startLocation: form.querySelector('input[name="startLocation"]').value.trim(),
-    destinationLocation: form.querySelector('input[name="destinationLocation"]').value.trim(),
-    via: form.querySelector('input[name="via"]').value.trim(),
-    seatsAvailable: parseInt(form.querySelector('input[name="seatsAvailable"]').value),
-    costPerKm: parseFloat(form.querySelector('input[name="costPerKm"]').value),
-  };
+  const startLocation = form
+    .querySelector('input[name="startLocation"]')
+    .value.trim();
+  const destinationLocation = form
+    .querySelector('input[name="destinationLocation"]')
+    .value.trim();
+  const via = form.querySelector('input[name="via"]').value;
+  const seatsAvailable = parseInt(
+    form.querySelector('input[name="seatsAvailable"]').value
+  );
+  const costPerKm = parseFloat(
+    form.querySelector('input[name="costPerKm"]').value
+  );
+  const vehicleModel = form.querySelector('input[name="vehicleModel"]').value.trim();
+  const vehiclePlate = form.querySelector('input[name="vehiclePlate"]').value.trim();
 
-  // Validate
-  if (!updatedRide.startLocation || !updatedRide.destinationLocation) {
+  // Basic validation
+  if (!startLocation || !destinationLocation || !vehicleModel || !vehiclePlate) {
     alert("Please fill in all required fields");
     return;
   }
 
-  const ride = getAllRides().find((r) => r.id === rideId && r.riderEmail === user.email);
-  if (!ride) {
-    alert("Ride not found");
+  const vehicleDetails = `${vehicleModel} (${vehiclePlate.toUpperCase()})`;
+
+  // Parse via locations
+  const viaLocations = via
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+
+  const { error } = await supabase
+    .from("rides")
+    .update({
+      start_location: startLocation,
+      destination_location: destinationLocation,
+      via_locations: viaLocations,
+      seats_total: seatsAvailable,
+      cost_per_km: costPerKm,
+      vehicle_details: vehicleDetails,
+    })
+    .eq("id", rideId)
+    .eq("rider_id", currentUser.id);
+
+  if (error) {
+    console.error("Error updating ride:", error);
+    alert("Failed to update ride. Please try again.");
     return;
   }
 
-  const updatedFullRide = { ...ride, ...updatedRide };
-  saveRide(updatedFullRide);
-
   closeEditModal();
-  loadDashboard();
-}
-
-function handleLogout() {
-  if (confirm("Are you sure you want to logout?")) {
-    logout();
-  }
+  await loadDashboard();
 }
 
 // ========== Initialization ==========
 
-function loadDashboard() {
-  const user = getCurrentUser();
-  if (!user) {
+document.addEventListener("DOMContentLoaded", async () => {
+  // Check authentication
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
     redirectToLogin();
     return;
   }
+
+  currentUser = user;
 
   // Display user email
   document.querySelector("[data-user-email]").textContent = user.email;
 
-  // Load rides
-  const rides = getRiderRides(user.email);
-  renderRides(rides);
+  // Fetch user roles to add a switcher link
+  const { data: roles } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", user.id);
 
-  // Load applications
-  const applications = getApplicationsForRider(user.email);
-  renderApplications(applications);
-
-  // Update revenue
-  updateRevenue();
-}
-
-// ========== Event Listeners ==========
-
-document.addEventListener("DOMContentLoaded", () => {
-  const user = getCurrentUser();
-  if (!user) {
-    redirectToLogin();
-    return;
+  const navActions = document.querySelector(".nav-actions");
+  if (navActions) {
+    const isPassenger = roles && roles.some((r) => r.role === "passenger");
+    const switchBtn = document.createElement("a");
+    switchBtn.className = "nav-button";
+    // Add margin/style spacing
+    switchBtn.style.marginRight = "1rem";
+    if (isPassenger) {
+      switchBtn.href = "passenger-landing.html";
+      switchBtn.textContent = "Passenger Dashboard";
+    } else {
+      switchBtn.href = "passenger-onboarding.html";
+      switchBtn.textContent = "Become a Passenger";
+    }
+    navActions.insertBefore(switchBtn, navActions.firstChild);
   }
 
-  loadDashboard();
+  // Load dashboard
+  await loadDashboard();
 
   // Post Ride button
   document.getElementById("post-ride-btn").addEventListener("click", () => {
@@ -325,12 +459,20 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Logout button
-  document.getElementById("logout-btn").addEventListener("click", handleLogout);
+  document
+    .getElementById("logout-btn")
+    .addEventListener("click", async () => {
+      if (confirm("Are you sure you want to logout?")) {
+        await supabase.auth.signOut();
+        redirectToLogin();
+      }
+    });
 
-  // Edit modal
+  // Edit modal form
   const editForm = document.getElementById("edit-ride-form");
   editForm.addEventListener("submit", handleEditSubmit);
 
+  // Modal close buttons
   const modalCloseBtn = document.querySelector(".modal-close-btn");
   modalCloseBtn.addEventListener("click", closeEditModal);
 
@@ -344,7 +486,4 @@ document.addEventListener("DOMContentLoaded", () => {
       closeEditModal();
     }
   });
-
-  // Refresh data every 5 seconds
-  setInterval(loadDashboard, 5000);
 });

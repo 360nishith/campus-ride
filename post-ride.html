@@ -85,6 +85,26 @@
         />
         <p class="form-error" data-cost-error aria-live="polite"></p>
 
+        <label for="vehicle-model">Vehicle Model *</label>
+        <input
+          id="vehicle-model"
+          name="vehicleModel"
+          type="text"
+          placeholder="e.g., Honda Activa, Activa 6G"
+          required
+        />
+        <p class="form-error" data-vehicle-model-error aria-live="polite"></p>
+
+        <label for="vehicle-plate">Number Plate *</label>
+        <input
+          id="vehicle-plate"
+          name="vehiclePlate"
+          type="text"
+          placeholder="e.g., KA-20-EA-1234"
+          required
+        />
+        <p class="form-error" data-vehicle-plate-error aria-live="polite"></p>
+
         <button type="submit" class="btn-primary">Post Ride</button>
         <button type="button" class="btn-secondary" id="cancel-btn">Cancel</button>
         <p class="form-error" data-submit-error aria-live="polite"></p>

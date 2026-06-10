@@ -1,19 +1,6 @@
-const currentUserKey = "campusRideCurrentUser";
-const riderRidesKey = "campusRideRiderRides";
+import { supabase } from "./supabase-client.js";
 
 // ========== Utility Functions ==========
-
-function getCurrentUser() {
-  try {
-    const user = JSON.parse(localStorage.getItem(currentUserKey));
-    if (user && user.role === "rider") {
-      return user;
-    }
-  } catch (error) {
-    console.error("Error getting current user:", error);
-  }
-  return null;
-}
 
 function redirectToLogin() {
   window.location.href = "login-rider.html";
@@ -21,25 +8,6 @@ function redirectToLogin() {
 
 function redirectToRiderDashboard() {
   window.location.href = "rider-landing.html";
-}
-
-function generateId() {
-  return `ride_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-}
-
-function getAllRides() {
-  try {
-    return JSON.parse(localStorage.getItem(riderRidesKey)) || [];
-  } catch (error) {
-    console.error("Error getting rides:", error);
-    return [];
-  }
-}
-
-function saveRide(ride) {
-  const allRides = getAllRides();
-  allRides.push(ride);
-  localStorage.setItem(riderRidesKey, JSON.stringify(allRides));
 }
 
 // ========== Form Validation ==========
@@ -55,16 +23,33 @@ function validateForm(formData) {
     errors.destination = "Destination location is required";
   }
 
-  if (formData.startLocation.trim() === formData.destinationLocation.trim()) {
+  if (
+    formData.startLocation.trim() &&
+    formData.destinationLocation.trim() &&
+    formData.startLocation.trim().toLowerCase() ===
+      formData.destinationLocation.trim().toLowerCase()
+  ) {
     errors.destination = "Start and destination cannot be the same";
   }
 
-  if (!formData.seatsAvailable || formData.seatsAvailable < 1 || formData.seatsAvailable > 7) {
+  if (
+    !formData.seatsAvailable ||
+    formData.seatsAvailable < 1 ||
+    formData.seatsAvailable > 7
+  ) {
     errors.seats = "Seats must be between 1 and 7";
   }
 
-  if (!formData.costPerKm || formData.costPerKm < 0) {
+  if (formData.costPerKm === null || formData.costPerKm < 0) {
     errors.cost = "Cost per km must be a valid positive number";
+  }
+
+  if (!formData.vehicleModel.trim()) {
+    errors["vehicle-model"] = "Vehicle model is required";
+  }
+
+  if (!formData.vehiclePlate.trim()) {
+    errors["vehicle-plate"] = "Number plate is required";
   }
 
   return errors;
@@ -86,98 +71,119 @@ function displayErrors(errors) {
   });
 }
 
-// ========== Event Handlers ==========
-
-function handleFormSubmit(event) {
-  event.preventDefault();
-
-  const user = getCurrentUser();
-  if (!user) {
-    redirectToLogin();
-    return;
-  }
-
-  const form = event.target;
-  const formData = {
-    startLocation: form.querySelector('input[name="startLocation"]').value.trim(),
-    destinationLocation: form.querySelector('input[name="destinationLocation"]').value.trim(),
-    via: form.querySelector('input[name="via"]').value.trim(),
-    seatsAvailable: parseInt(form.querySelector('input[name="seatsAvailable"]').value) || 0,
-    costPerKm: parseFloat(form.querySelector('input[name="costPerKm"]').value) || 0,
-  };
-
-  // Validate
-  const errors = validateForm(formData);
-  if (Object.keys(errors).length > 0) {
-    displayErrors(errors);
-    return;
-  }
-
-  clearErrors();
-
-  // Create ride object
-  const newRide = {
-    id: generateId(),
-    riderEmail: user.email,
-    riderName: user.name || user.email,
-    startLocation: formData.startLocation,
-    destinationLocation: formData.destinationLocation,
-    via: formData.via,
-    seatsAvailable: formData.seatsAvailable,
-    seatsBooked: 0, // Initially no seats booked
-    costPerKm: formData.costPerKm,
-    estimatedDistance: 0, // Will be filled by Supabase/backend in future
-    createdAt: new Date().toISOString(),
-    status: "active",
-  };
-
-  try {
-    saveRide(newRide);
-    alert("Ride posted successfully!");
-    redirectToRiderDashboard();
-  } catch (error) {
-    console.error("Error saving ride:", error);
-    const submitError = document.querySelector("[data-submit-error]");
-    submitError.textContent = "Failed to post ride. Please try again.";
-  }
-}
-
-function handleCancel() {
-  if (confirm("Discard this ride post?")) {
-    redirectToRiderDashboard();
-  }
-}
-
-function handleLogout() {
-  if (confirm("Are you sure you want to logout?")) {
-    localStorage.removeItem(currentUserKey);
-    redirectToLogin();
-  }
-}
-
 // ========== Initialization ==========
 
-document.addEventListener("DOMContentLoaded", () => {
-  const user = getCurrentUser();
-  if (!user) {
+document.addEventListener("DOMContentLoaded", async () => {
+  // Check authentication
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
     redirectToLogin();
     return;
   }
 
   // Display user email
-  document.querySelector("[data-user-email]").textContent = user.email;
+  const emailEl = document.querySelector("[data-user-email]");
+  if (emailEl) {
+    emailEl.textContent = user.email;
+  }
 
   // Form submission
   const form = document.getElementById("post-ride-form");
-  form.addEventListener("submit", handleFormSubmit);
+  const submitBtn = form.querySelector('button[type="submit"]');
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const formData = {
+      startLocation: form.querySelector('input[name="startLocation"]').value,
+      destinationLocation: form.querySelector(
+        'input[name="destinationLocation"]'
+      ).value,
+      via: form.querySelector('input[name="via"]').value,
+      seatsAvailable:
+        parseInt(form.querySelector('input[name="seatsAvailable"]').value) || 0,
+      costPerKm:
+        parseFloat(form.querySelector('input[name="costPerKm"]').value),
+      vehicleModel: form.querySelector('input[name="vehicleModel"]').value,
+      vehiclePlate: form.querySelector('input[name="vehiclePlate"]').value,
+    };
+
+    // Handle NaN for costPerKm
+    if (isNaN(formData.costPerKm)) {
+      formData.costPerKm = null;
+    }
+
+    // Validate
+    const errors = validateForm(formData);
+    if (Object.keys(errors).length > 0) {
+      displayErrors(errors);
+      return;
+    }
+
+    clearErrors();
+
+    // Parse via locations
+    const viaArray = formData.via
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
+
+    // Disable submit button during request
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Posting…";
+
+    try {
+      const vehicleDetails = `${formData.vehicleModel.trim()} (${formData.vehiclePlate.trim().toUpperCase()})`;
+
+      const { error: insertError } = await supabase.from("rides").insert({
+        rider_id: user.id,
+        start_location: formData.startLocation.trim(),
+        destination_location: formData.destinationLocation.trim(),
+        via_locations: viaArray,
+        seats_total: formData.seatsAvailable,
+        cost_per_km: formData.costPerKm,
+        vehicle_details: vehicleDetails,
+      });
+
+      if (insertError) {
+        throw insertError;
+      }
+
+      alert("Ride posted successfully!");
+      redirectToRiderDashboard();
+    } catch (error) {
+      console.error("Error saving ride:", error);
+      const submitError = document.querySelector("[data-submit-error]");
+      if (submitError) {
+        submitError.textContent =
+          error.message || "Failed to post ride. Please try again.";
+      }
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Post Ride";
+    }
+  });
 
   // Cancel button
   const cancelBtn = document.getElementById("cancel-btn");
-  cancelBtn.addEventListener("click", handleCancel);
+  cancelBtn.addEventListener("click", () => {
+    if (confirm("Discard this ride post?")) {
+      redirectToRiderDashboard();
+    }
+  });
 
   // Logout button
   const logoutBtn = document.getElementById("logout-btn");
-  logoutBtn.addEventListener("click", handleLogout);
+  logoutBtn.addEventListener("click", async () => {
+    if (confirm("Are you sure you want to logout?")) {
+      await supabase.auth.signOut();
+      redirectToLogin();
+    }
+  });
 
   // Clear errors on input
   form.querySelectorAll("input").forEach((input) => {
