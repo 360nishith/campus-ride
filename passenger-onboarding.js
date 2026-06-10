@@ -1,86 +1,134 @@
-const currentUserKey = "campusRideCurrentUser";
-const studentVerificationKey = "campusRideStudentVerifications";
+import { supabase } from './supabase-client.js';
 
-const form = document.querySelector("[data-passenger-onboarding]");
-const emailInput = form.querySelector('input[name="email"]');
-const errorMessage = form.querySelector("[data-onboarding-error]");
-const successMessage = form.querySelector("[data-onboarding-success]");
+document.addEventListener('DOMContentLoaded', async () => {
+  const form = document.querySelector('[data-passenger-onboarding]');
+  const errorEl = document.querySelector('[data-onboarding-error]');
+  const successEl = document.querySelector('[data-onboarding-success]');
+  const submitBtn = form?.querySelector('button[type="submit"]');
+  const emailInput = form?.querySelector('[name="email"]');
 
-function getJson(key, fallback) {
-  try {
-    return JSON.parse(localStorage.getItem(key)) || fallback;
-  } catch (error) {
-    return fallback;
-  }
-}
+  // --- Auth check ---
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-function getCurrentEmail() {
-  const params = new URLSearchParams(window.location.search);
-  const emailFromUrl = params.get("email");
-  const currentUser = getJson(currentUserKey, {});
-  return (emailFromUrl || currentUser.email || "").trim().toLowerCase();
-}
-
-function getVerifications() {
-  return getJson(studentVerificationKey, {});
-}
-
-function saveVerification(email, details) {
-  const verifications = getVerifications();
-
-  verifications[email] = {
-    ...verifications[email],
-    ...details,
-    collegeIdCollected: true,
-    sourceRole: "passenger",
-    verifiedAt: new Date().toISOString(),
-  };
-
-  localStorage.setItem(studentVerificationKey, JSON.stringify(verifications));
-}
-
-const email = getCurrentEmail();
-const existingVerification = getVerifications()[email];
-
-if (!email) {
-  errorMessage.textContent = "Login before passenger onboarding.";
-  form.querySelector("button").disabled = true;
-} else if (existingVerification?.collegeIdCollected) {
-  window.location.href = "passenger-landing.html";
-} else {
-  emailInput.value = email;
-}
-
-form.addEventListener("submit", (event) => {
-  event.preventDefault();
-  errorMessage.textContent = "";
-  successMessage.textContent = "";
-
-  if (!form.checkValidity()) {
-    errorMessage.textContent = "Complete all passenger details and upload both ID photos.";
-    form.reportValidity();
+  if (!user || authError) {
+    if (errorEl) errorEl.textContent = 'Login before passenger onboarding';
+    if (submitBtn) submitBtn.disabled = true;
     return;
   }
 
-  const formData = new FormData(form);
-  const idFront = formData.get("idFront");
-  const idBack = formData.get("idBack");
+  // --- Already onboarded check ---
+  const { data: profile } = await supabase
+    .from('student_profiles')
+    .select('college_id_collected')
+    .eq('user_id', user.id)
+    .maybeSingle();
 
-  saveVerification(email, {
-    name: formData.get("name").trim(),
-    usn: formData.get("usn").trim().toUpperCase(),
-    branch: formData.get("branch").trim().toUpperCase(),
-    year: formData.get("year"),
-    phone: formData.get("phone").trim(),
-    pickup: formData.get("pickup").trim(),
-    collegeIdFiles: {
-      front: idFront.name,
-      back: idBack.name,
-    },
+  if (profile?.college_id_collected) {
+    window.location.href = 'passenger-landing.html';
+    return;
+  }
+
+  // --- Pre-fill email ---
+  if (emailInput) emailInput.value = user.email;
+
+  // --- Form submit ---
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    if (errorEl) errorEl.textContent = '';
+    if (successEl) successEl.textContent = '';
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+      const formData = new FormData(form);
+      const name = formData.get('name');
+      const usn = formData.get('usn').toUpperCase();
+      const branch = formData.get('branch').toUpperCase();
+      const year = formData.get('year');
+      const phoneRaw = formData.get('phone') || '';
+      const phone = phoneRaw.replace(/\D/g, '').slice(-10);
+      const pickup = formData.get('pickup');
+      const idFront = formData.get('idFront');
+      const idBack = formData.get('idBack');
+
+      // --- Ensure user profile exists in public.profiles ---
+      const { data: existingProfile, error: profileGetErr } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (profileGetErr) throw profileGetErr;
+
+      if (!existingProfile) {
+        const { error: profileInsErr } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            email: user.email,
+            full_name: name || user.user_metadata?.full_name || user.email.split('@')[0],
+            primary_role: 'passenger',
+          });
+        if (profileInsErr) throw profileInsErr;
+      }
+
+      // --- Upload college ID front ---
+      const frontExt = idFront.name.split('.').pop();
+      const frontPath = `${user.id}/college_id_front.${frontExt}`;
+      const { error: frontUploadErr } = await supabase.storage
+        .from('verification-documents')
+        .upload(frontPath, idFront, { upsert: true });
+      if (frontUploadErr) throw frontUploadErr;
+
+      // --- Upload college ID back ---
+      const backExt = idBack.name.split('.').pop();
+      const backPath = `${user.id}/college_id_back.${backExt}`;
+      const { error: backUploadErr } = await supabase.storage
+        .from('verification-documents')
+        .upload(backPath, idBack, { upsert: true });
+      if (backUploadErr) throw backUploadErr;
+
+      // --- Insert document records ---
+      const { error: docErr } = await supabase
+        .from('verification_documents')
+        .upsert(
+          [
+            { user_id: user.id, document_type: 'college_id_front', storage_path: frontPath },
+            { user_id: user.id, document_type: 'college_id_back', storage_path: backPath },
+          ],
+          { onConflict: 'user_id,document_type' }
+        );
+      if (docErr) throw docErr;
+
+      // --- Upsert student profile ---
+      const { error: profileErr } = await supabase
+        .from('student_profiles')
+        .upsert(
+          {
+            user_id: user.id,
+            usn,
+            branch,
+            study_year: parseInt(year),
+            phone,
+            usual_pickup: pickup,
+            college_id_collected: true,
+          },
+          { onConflict: 'user_id' }
+        );
+      if (profileErr) throw profileErr;
+
+      // --- Success ---
+      if (successEl) successEl.textContent = 'Passenger onboarding completed.';
+      setTimeout(() => {
+        window.location.href = 'passenger-landing.html';
+      }, 700);
+    } catch (err) {
+      if (errorEl) errorEl.textContent = err.message || 'An error occurred during onboarding.';
+      if (submitBtn) submitBtn.disabled = false;
+    }
   });
-
-  successMessage.textContent = "Passenger onboarding completed.";
-  window.setTimeout(() => {
-    window.location.href = "passenger-landing.html";
-  }, 700);
 });
