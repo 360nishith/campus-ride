@@ -256,7 +256,8 @@ label {
   font-weight: 700;
 }
 
-input {
+input,
+select {
   width: 100%;
   min-height: 44px;
   border: 1px solid rgba(23, 32, 42, 0.2);
@@ -267,7 +268,8 @@ input {
   font: inherit;
 }
 
-input:focus {
+input:focus,
+select:focus {
   border-color: #15616d;
   background: #ffffff;
   outline: 3px solid rgba(21, 97, 109, 0.16);
@@ -277,12 +279,36 @@ input[aria-invalid="true"] {
   border-color: #c62828;
 }
 
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 150px;
+  gap: 12px;
+}
+
+.form-row label {
+  display: block;
+}
+
+.form-note {
+  margin: -2px 0 6px;
+  color: #52616b;
+  line-height: 1.6;
+}
+
 .form-error {
   min-height: 20px;
   margin: 0;
   color: #c62828;
   font-size: 0.88rem;
   font-weight: 700;
+}
+
+.form-success {
+  min-height: 20px;
+  margin: 0;
+  color: #15616d;
+  font-size: 0.88rem;
+  font-weight: 800;
 }
 
 .account-card button,
@@ -307,6 +333,13 @@ input[aria-invalid="true"] {
   background: #104d57;
   outline: none;
   transform: translateY(-1px);
+}
+
+.account-card button:disabled,
+.forgot-card button:disabled {
+  background: #9aa8ae;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .forgot-link {
@@ -338,6 +371,10 @@ input[aria-invalid="true"] {
 
 .auth-card {
   width: min(100%, 520px);
+}
+
+.onboarding-card {
+  width: min(100%, 640px);
 }
 
 .auth-card h1 {
@@ -388,5 +425,9 @@ input[aria-invalid="true"] {
   .auth-main {
     align-items: start;
     padding-top: 190px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
   }
 }

@@ -1,9 +1,37 @@
 const nmamitEmailPattern = /^[^\s@]+@nmamit\.in$/;
 const forms = document.querySelectorAll("[data-account-form]");
+const currentUserKey = "campusRideCurrentUser";
+const studentVerificationKey = "campusRideStudentVerifications";
+
+function getStudentVerifications() {
+  try {
+    return JSON.parse(localStorage.getItem(studentVerificationKey)) || {};
+  } catch (error) {
+    return {};
+  }
+}
+
+function hasStudentVerification(email) {
+  const verifications = getStudentVerifications();
+  return Boolean(verifications[email]?.collegeIdCollected);
+}
+
+function saveCurrentUser(email, role) {
+  localStorage.setItem(
+    currentUserKey,
+    JSON.stringify({
+      email,
+      role,
+      loggedInAt: new Date().toISOString(),
+    })
+  );
+}
 
 forms.forEach((form) => {
   const emailInput = form.querySelector('input[name="email"]');
   const emailError = form.querySelector("[data-email-error]");
+  const mode = form.dataset.mode;
+  const role = form.dataset.role;
 
   emailInput.addEventListener("input", () => {
     emailError.textContent = "";
@@ -23,6 +51,28 @@ forms.forEach((form) => {
 
     emailError.textContent = "";
     emailInput.removeAttribute("aria-invalid");
+
+    if (mode === "login") {
+      saveCurrentUser(email, role);
+
+      if (role === "passenger" && !hasStudentVerification(email)) {
+        window.location.href = `passenger-onboarding.html?email=${encodeURIComponent(email)}`;
+        return;
+      }
+
+      window.location.href = "index.html";
+      return;
+    }
+
+    if (mode === "signup") {
+      saveCurrentUser(email, role);
+
+      if (role === "passenger") {
+        window.location.href = `passenger-onboarding.html?email=${encodeURIComponent(email)}`;
+        return;
+      }
+    }
+
     form.reset();
   });
 });

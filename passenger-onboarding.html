@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Passenger Onboarding | Campus Ride</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="auth-page">
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Campus Ride home">
+        <span class="brand-mark">CR</span>
+        <span>CAMPUS RIDE</span>
+      </a>
+
+      <nav class="nav-actions" aria-label="Account actions">
+        <div class="dropdown">
+          <button class="nav-button" type="button" aria-haspopup="true">
+            Signup
+            <span aria-hidden="true">&#9662;</span>
+          </button>
+          <div class="dropdown-menu">
+            <a href="signup-passenger.html">Passenger</a>
+            <a href="signup-rider.html">Rider</a>
+          </div>
+        </div>
+
+        <div class="dropdown">
+          <button class="nav-button nav-button-primary" type="button" aria-haspopup="true">
+            Login
+            <span aria-hidden="true">&#9662;</span>
+          </button>
+          <div class="dropdown-menu">
+            <a href="login-passenger.html">Passenger</a>
+            <a href="login-rider.html">Rider</a>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="auth-main">
+      <form class="account-card auth-card onboarding-card" data-passenger-onboarding novalidate>
+        <span class="role-label">Passenger Onboarding</span>
+        <h1>Verify student details</h1>
+        <p class="form-note">
+          Complete this once using your NMAMIT details and college ID pictures.
+        </p>
+
+        <label for="onboarding-email">NMAMIT email</label>
+        <input id="onboarding-email" name="email" type="email" readonly />
+
+        <label for="onboarding-name">Full name</label>
+        <input id="onboarding-name" name="name" type="text" autocomplete="name" required />
+
+        <label for="onboarding-usn">USN</label>
+        <input id="onboarding-usn" name="usn" type="text" placeholder="4NM..." required />
+
+        <div class="form-row">
+          <div>
+            <label for="onboarding-branch">Branch</label>
+            <input id="onboarding-branch" name="branch" type="text" placeholder="CSE" required />
+          </div>
+
+          <div>
+            <label for="onboarding-year">Year</label>
+            <select id="onboarding-year" name="year" required>
+              <option value="">Select</option>
+              <option value="1">1st year</option>
+              <option value="2">2nd year</option>
+              <option value="3">3rd year</option>
+              <option value="4">4th year</option>
+            </select>
+          </div>
+        </div>
+
+        <label for="onboarding-phone">Phone number</label>
+        <input id="onboarding-phone" name="phone" type="tel" autocomplete="tel" required />
+
+        <label for="onboarding-pickup">Usual pickup point</label>
+        <input
+          id="onboarding-pickup"
+          name="pickup"
+          type="text"
+          placeholder="Hostel block, bus stop, or nearby area"
+          required
+        />
+
+        <label for="onboarding-id-front">College ID photo - front</label>
+        <input id="onboarding-id-front" name="idFront" type="file" accept="image/*" required />
+
+        <label for="onboarding-id-back">College ID photo - back</label>
+        <input id="onboarding-id-back" name="idBack" type="file" accept="image/*" required />
+
+        <p class="form-error" data-onboarding-error aria-live="polite"></p>
+        <p class="form-success" data-onboarding-success aria-live="polite"></p>
+
+        <button type="submit">Finish passenger onboarding</button>
+      </form>
+    </main>
+
+    <script src="passenger-onboarding.js"></script>
+  </body>
+</html>
