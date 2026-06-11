@@ -238,6 +238,12 @@ on public.user_roles for insert
 to authenticated
 with check (auth.uid() = user_id and role in ('passenger', 'rider'));
 
+create policy "users can update own roles"
+on public.user_roles for update
+to authenticated
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id and role in ('passenger', 'rider'));
+
 create policy "users can read own student profile"
 on public.student_profiles for select
 to authenticated
