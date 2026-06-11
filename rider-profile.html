@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rider Profile | Campus Ride</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="dashboard-page">
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Campus Ride home">
+        <span class="brand-mark">CR</span>
+        <span>CAMPUS RIDE</span>
+      </a>
+
+      <nav class="nav-actions" aria-label="Rider actions">
+        <a class="nav-button nav-button-primary" href="rider-landing.html">Back to Dashboard</a>
+        <button class="nav-button" id="logout-btn">Logout</button>
+      </nav>
+    </header>
+
+    <main class="profile-main">
+      <section class="profile-section" aria-labelledby="profile-title">
+        <div class="profile-header">
+          <div class="profile-info">
+            <div class="profile-avatar">
+              <span class="avatar-initial" data-initial></span>
+            </div>
+            <div class="profile-details">
+              <p class="section-label">Rider Profile</p>
+              <h1 id="profile-title" class="profile-name" data-rider-name></h1>
+              <p class="profile-email" data-rider-email></p>
+              <p class="profile-joined" data-joined-date></p>
+            </div>
+          </div>
+
+          <div class="profile-actions">
+            <button class="btn-primary" id="edit-profile-btn">✎ Edit Profile</button>
+            <button class="btn-danger" id="delete-profile-btn">🗑 Delete Account</button>
+          </div>
+        </div>
+
+        <section class="profile-cards">
+          <!-- Academic Information -->
+          <div class="profile-card">
+            <h3 class="card-title">Academic Information</h3>
+            <div class="card-content">
+              <div class="info-row">
+                <span class="info-label">USN</span>
+                <span class="info-value" data-usn>-</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Branch</span>
+                <span class="info-value" data-branch>-</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Year</span>
+                <span class="info-value" data-year>-</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact Information -->
+          <div class="profile-card">
+            <h3 class="card-title">Contact Information</h3>
+            <div class="card-content">
+              <div class="info-row">
+                <span class="info-label">Phone</span>
+                <span class="info-value" data-phone>-</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">UPI ID</span>
+                <span class="info-value" data-upi>-</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rider Statistics -->
+          <div class="profile-card">
+            <h3 class="card-title">Rider Statistics</h3>
+            <div class="card-content">
+              <div class="info-row">
+                <span class="info-label">Total Rides Posted</span>
+                <span class="info-value" data-total-rides>0</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Completed Rides</span>
+                <span class="info-value" data-completed-rides>0</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Total Revenue</span>
+                <span class="info-value" data-rider-revenue>₹0</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal" id="edit-profile-modal" aria-hidden="true">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Edit Profile</h3>
+          <button class="modal-close-btn" aria-label="Close modal">&times;</button>
+        </div>
+        <form id="edit-profile-form" class="profile-form" novalidate>
+          <label for="edit-name">Full Name</label>
+          <input id="edit-name" name="name" type="text" required />
+
+          <label for="edit-phone">Phone Number</label>
+          <input
+            id="edit-phone"
+            name="phone"
+            type="tel"
+            pattern="[0-9]{10}"
+            placeholder="10-digit mobile number"
+            required
+          />
+
+          <label for="edit-upi">UPI ID</label>
+          <input id="edit-upi" name="upiId" type="text" placeholder="name@bank" required />
+
+          <label for="edit-branch">Branch</label>
+          <input id="edit-branch" name="branch" type="text" required />
+
+          <label for="edit-year">Year</label>
+          <select id="edit-year" name="year" required>
+            <option value="">Select Year</option>
+            <option value="1">1st year</option>
+            <option value="2">2nd year</option>
+            <option value="3">3rd year</option>
+            <option value="4">4th year</option>
+          </select>
+
+          <div class="modal-actions">
+            <button type="submit" class="btn-primary">Save Changes</button>
+            <button type="button" class="btn-secondary" id="modal-cancel-btn">Cancel</button>
+          </div>
+          <p class="form-error" data-edit-error aria-live="polite"></p>
+        </form>
+      </div>
+    </div>
+
+    <script src="rider-profile.js"></script>
+  </body>
+</html>
